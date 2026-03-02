@@ -4,7 +4,6 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>El Testicle Perdut de Franco</title>
-  <link rel="icon" type="image/png" href="./favicon.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
@@ -673,8 +672,16 @@ let eggMesh = null;
     scene.add(obj);
     eggMesh = obj;
 
-    setProgress(100, 'Arxiu desclassificat.');
-    setTimeout(() => loadScreen.classList.add('hidden'), 600);
+    // Stretch loading to 6.7s with fake progress steps
+    const steps = [
+      [1200, 92, 'Desencriptant dossier...'],
+      [2400, 95, 'Verificant empremtes...'],
+      [3800, 97, 'Aplicant censura...'],
+      [5200, 99, 'Últims retocs...'],
+      [6000, 100, 'Arxiu desclassificat.'],
+    ];
+    steps.forEach(([delay, p, msg]) => setTimeout(() => setProgress(p, msg), delay));
+    setTimeout(() => loadScreen.classList.add('hidden'), 6700);
   } catch (err) {
     console.error('Error carregant model:', err);
     loadStatus.textContent = 'Error en la desclassificació. Actualitza la pàgina.';
