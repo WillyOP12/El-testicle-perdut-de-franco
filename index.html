@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>El Testicle Perdut de Franco</title>
+  <link rel="icon" type="image/png" href="./favicon.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:     #0f0d08;
+      --sepia:  #c8a96e;
+      --light:  #e8d5a0;
+      --mid:    #6b5a35;
+      --dark:   #1a1408;
+      --red:    #8b1a1a;
+      --border: rgba(200,169,110,0.18);
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--bg);
+      overflow: hidden;
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    /* ─── CANVAS ─── */
+    #canvas-wrapper {
+      position: fixed; inset: 0; z-index: 1;
+    }
+    canvas {
+      display: block;
+      width: 100% !important; height: 100% !important;
+      filter: sepia(0.6) contrast(1.1) brightness(0.85);
+    }
+
+    /* ─── FILM GRAIN ─── */
+    #grain {
+      position: fixed; inset: 0; z-index: 10;
+      pointer-events: none; opacity: 0.22;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='250' height='250' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 250px 250px;
+      animation: grain 0.1s steps(1) infinite;
+    }
+    @keyframes grain {
+      0%   { background-position:   0px   0px; }
+      10%  { background-position: -60px -90px; }
+      20%  { background-position:  90px  40px; }
+      30%  { background-position: -30px  80px; }
+      40%  { background-position:  70px -50px; }
+      50%  { background-position: -100px 20px; }
+      60%  { background-position:  40px 100px; }
+      70%  { background-position: -70px -30px; }
+      80%  { background-position:  20px -100px; }
+      90%  { background-position: -90px  60px; }
+      100% { background-position:  50px -70px; }
+    }
+
+    /* ─── CRT SCANLINES ─── */
+    #crt {
+      position: fixed; inset: 0; z-index: 11;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.16) 0px,
+        rgba(0,0,0,0.16) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+    }
+
+    /* ─── VIGNETTE ─── */
+    #vignette {
+      position: fixed; inset: 0; z-index: 12;
+      pointer-events: none;
+      background: radial-gradient(ellipse at center,
+        transparent 35%,
+        rgba(10, 8, 3, 0.55) 70%,
+        rgba(5, 3, 0, 0.85) 100%
+      );
+    }
+
+    /* ─── SCREEN FLICKER ─── */
+    @keyframes flicker {
+      0%, 91%, 93%, 95%, 100% { opacity: 1; }
+      92% { opacity: 0.82; }
+      94% { opacity: 0.93; }
+    }
+    body { animation: flicker 7s infinite; }
+
+    /* ─── HEADER ─── */
+    header {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 50;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 22px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,8,3,0.82);
+      backdrop-filter: blur(6px);
+    }
+
+    .nodo-badge { display: flex; align-items: center; gap: 12px; }
+
+    .nodo-circle {
+      flex-shrink: 0;
+      width: 40px; height: 40px;
+      border: 2px solid var(--sepia);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Special Elite', serif;
+      font-size: 0.52rem;
+      letter-spacing: 0.04em;
+      color: var(--sepia);
+      text-align: center;
+      line-height: 1.15;
+      animation: nodo-glow 3s ease-in-out infinite;
+    }
+    @keyframes nodo-glow {
+      0%, 100% { box-shadow: 0 0 4px rgba(200,169,110,0.3); }
+      50%       { box-shadow: 0 0 14px rgba(200,169,110,0.65); }
+    }
+
+    .title-wrap h1 {
+      font-family: 'Special Elite', serif;
+      font-size: clamp(0.8rem, 2.2vw, 1.1rem);
+      color: var(--light);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      line-height: 1.1;
+      animation: glitch 9s infinite;
+    }
+    .title-wrap p {
+      font-size: 0.52rem;
+      color: var(--sepia);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+
+    @keyframes glitch {
+      0%, 88%, 100%  { clip-path: none; transform: none; color: var(--light); }
+      90% { clip-path: inset(15% 0 65% 0); transform: translateX(-4px); color: #ff4444; }
+      91% { clip-path: inset(55% 0 15% 0); transform: translateX(4px); color: var(--light); }
+      92% { clip-path: none; transform: none; }
+    }
+
+    .rec-badge {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 0.58rem;
+      color: var(--red);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      border: 1px solid rgba(139,26,26,0.4);
+      padding: 5px 10px;
+    }
+    .rec-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--red);
+      animation: blink 1.1s step-end infinite;
+    }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+    /* ─── CORNERS ─── */
+    .corner {
+      position: fixed; z-index: 40;
+      pointer-events: none;
+      width: 20px; height: 20px;
+    }
+    .corner::before, .corner::after {
+      content: ''; position: absolute;
+      background: rgba(200,169,110,0.45);
+    }
+    .corner::before { width: 100%; height: 1px; top: 0; left: 0; }
+    .corner::after  { height: 100%; width: 1px; top: 0; left: 0; }
+    .corner.tr { top: 58px; right: 22px; transform: scaleX(-1); }
+    .corner.tl { top: 58px; left: 22px; }
+    .corner.bl { bottom: 42px; left: 22px; transform: scaleY(-1); }
+    .corner.br { bottom: 42px; right: 22px; transform: scale(-1,-1); }
+
+    /* ─── SIDE LABELS ─── */
+    .side-label {
+      position: fixed; z-index: 40;
+      pointer-events: none;
+      font-size: 0.48rem;
+      color: rgba(200,169,110,0.28);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      writing-mode: vertical-rl;
+    }
+    .side-label.left  { left: 7px;  top: 50%; transform: translateY(-50%); }
+    .side-label.right { right: 7px; top: 50%; transform: translateY(-50%) rotate(180deg); }
+
+    /* ─── CROSSHAIR ─── */
+    #crosshair {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 40; pointer-events: none;
+      width: 28px; height: 28px; opacity: 0.18;
+    }
+    #crosshair::before, #crosshair::after {
+      content: ''; position: absolute; background: var(--sepia);
+    }
+    #crosshair::before { left: 50%; top: 0; bottom: 0; width: 1px; transform: translateX(-50%); }
+    #crosshair::after  { top: 50%; left: 0; right: 0; height: 1px; transform: translateY(-50%); }
+
+    /* ─── FOOTER ─── */
+    footer {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      z-index: 50;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 22px;
+      border-top: 1px solid var(--border);
+      background: rgba(10,8,3,0.82);
+      backdrop-filter: blur(6px);
+    }
+    .hint {
+      font-size: 0.52rem; color: var(--mid);
+      letter-spacing: 0.14em; text-transform: uppercase;
+    }
+    .hint span { color: rgba(200,169,110,0.55); }
+    .timecode {
+      font-size: 0.6rem; color: var(--sepia);
+      letter-spacing: 0.1em;
+    }
+
+    /* ─── LOADING ─── */
+    #loading {
+      position: fixed; inset: 0; z-index: 200;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: var(--bg);
+      transition: opacity 1.2s ease;
+    }
+    #loading.hidden { opacity: 0; pointer-events: none; }
+
+    #loading .nodo-big {
+      width: 70px; height: 70px;
+      border: 2px solid var(--sepia);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Special Elite', serif;
+      font-size: 1rem; color: var(--sepia);
+      letter-spacing: 0.05em; text-align: center; line-height: 1.2;
+      margin-bottom: 28px;
+      animation: nodo-glow 2s ease-in-out infinite;
+    }
+    #loading h1 {
+      font-family: 'Special Elite', serif;
+      font-size: clamp(1.1rem, 4vw, 2rem);
+      color: var(--light);
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0 30px;
+      max-width: 580px;
+      line-height: 1.35;
+    }
+    #loading .sub {
+      margin-top: 8px;
+      font-size: 0.55rem; color: var(--mid);
+      letter-spacing: 0.25em; text-transform: uppercase;
+    }
+    .bar-wrap {
+      margin-top: 30px;
+      width: 220px; height: 1px;
+      background: rgba(200,169,110,0.12);
+    }
+    #load-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--red), var(--sepia));
+      width: 0; transition: width 0.4s ease;
+    }
+    #load-status {
+      margin-top: 14px;
+      font-size: 0.52rem; color: rgba(200,169,110,0.35);
+      letter-spacing: 0.2em; text-transform: uppercase;
+    }
+
+    /* ─── HORIZONTAL SCRATCHES (film effect) ─── */
+    #scratches {
+      position: fixed; inset: 0; z-index: 13; pointer-events: none;
+    }
+    #scratches canvas {
+      filter: none;
+      position: absolute; inset: 0;
+      width: 100% !important; height: 100% !important;
+      opacity: 0.35;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loading">
+  <div class="nodo-big">NO<br>DO</div>
+  <h1>El Testicle Perdut de Franco</h1>
+  <p class="sub">Arxiu secret · Classificat · Nodo 1939</p>
+  <div class="bar-wrap"><div id="load-bar"></div></div>
+  <p id="load-status">Desclassificant arxiu...</p>
+</div>
+
+<!-- 3D Canvas -->
+<div id="canvas-wrapper"></div>
+
+<!-- Film overlays -->
+<div id="grain"></div>
+<div id="crt"></div>
+<div id="vignette"></div>
+<div id="scratches"><canvas id="scratch-canvas"></canvas></div>
+
+<!-- UI -->
+<div id="crosshair"></div>
+<div class="corner tl"></div>
+<div class="corner tr"></div>
+<div class="corner bl"></div>
+<div class="corner br"></div>
+<div class="side-label left">Peça Nº 001 — Patrimoni de la República</div>
+<div class="side-label right">Classificat · Top Secret · Madrid 1939</div>
+
+<header>
+  <div class="nodo-badge">
+    <div class="nodo-circle">NO<br>DO</div>
+    <div class="title-wrap">
+      <h1>El Testicle Perdut de Franco</h1>
+      <p>Arxiu Arqueològic — Espanya · 1939</p>
+    </div>
+  </div>
+  <div class="rec-badge">
+    <div class="rec-dot"></div>
+    <span>Emissió en directe</span>
+  </div>
+</header>
+
+<footer>
+  <div class="hint"><span>arrossega</span> per rotar · <span>scroll</span> per zoom</div>
+  <div class="timecode" id="timecode">00:00:00:00</div>
+</footer>
+
+<!-- Three.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ─── TIMECODE ─────────────────────────────────────────────────────────────
+const tcEl = document.getElementById('timecode');
+const tcStart = Date.now();
+function updateTimecode() {
+  const ms  = Date.now() - tcStart;
+  const ff  = Math.floor((ms % 1000) / 40).toString().padStart(2,'0');
+  const ss  = Math.floor(ms / 1000 % 60).toString().padStart(2,'0');
+  const mm  = Math.floor(ms / 60000 % 60).toString().padStart(2,'0');
+  const hh  = Math.floor(ms / 3600000).toString().padStart(2,'0');
+  tcEl.textContent = `${hh}:${mm}:${ss}:${ff}`;
+}
+
+// ─── FILM SCRATCHES ───────────────────────────────────────────────────────
+const sc = document.getElementById('scratch-canvas');
+const sctx = sc.getContext('2d');
+function resizeScratch() {
+  sc.width  = window.innerWidth;
+  sc.height = window.innerHeight;
+}
+resizeScratch();
+window.addEventListener('resize', resizeScratch);
+
+function drawScratches() {
+  sctx.clearRect(0, 0, sc.width, sc.height);
+  if (Math.random() > 0.85) {
+    const n = Math.floor(Math.random() * 3) + 1;
+    for (let i = 0; i < n; i++) {
+      const x = Math.random() * sc.width;
+      sctx.beginPath();
+      sctx.moveTo(x, 0);
+      sctx.lineTo(x + (Math.random()-0.5)*10, sc.height);
+      sctx.strokeStyle = `rgba(232,213,160,${Math.random()*0.3+0.05})`;
+      sctx.lineWidth = Math.random() * 0.8 + 0.2;
+      sctx.stroke();
+    }
+  }
+}
+
+// ─── LOADING PROGRESS ─────────────────────────────────────────────────────
+const loadBar    = document.getElementById('load-bar');
+const loadStatus = document.getElementById('load-status');
+const loadScreen = document.getElementById('loading');
+const statuses   = [
+  'Desclassificant arxiu...',
+  'Verificant autenticitat...',
+  'Reconstruint peça...',
+  'Aplicant censura...',
+  'Gairebé llest...'
+];
+let prog = 0;
+function setProgress(p, msg) {
+  prog = p;
+  loadBar.style.width = p + '%';
+  if (msg) loadStatus.textContent = msg;
+}
+
+// ─── INLINE MTL LOADER ────────────────────────────────────────────────────
+class SimpleMTLLoader {
+  constructor(basePath) { this.basePath = basePath; }
+
+  async load(url) {
+    const resp = await fetch(this.basePath + url);
+    const text = await resp.text();
+    return this.parse(text);
+  }
+
+  parse(text) {
+    const materials = {};
+    let cur = null;
+    for (const rawLine of text.split('\n')) {
+      const line = rawLine.trim();
+      if (!line || line.startsWith('#')) continue;
+      const [key, ...vals] = line.split(/\s+/);
+      if (key === 'newmtl') {
+        cur = vals.join(' ');
+        materials[cur] = { mapKd: null, Kd: [0.8, 0.7, 0.6] };
+      } else if (cur) {
+        if (key === 'map_Kd') materials[cur].mapKd = vals[vals.length - 1];
+        if (key === 'Kd')     materials[cur].Kd = vals.map(Number);
+      }
+    }
+    return materials;
+  }
+
+  buildThreeMaterials(parsed, textureLoader, basePath) {
+    const out = {};
+    for (const [name, data] of Object.entries(parsed)) {
+      let mat;
+      if (data.mapKd) {
+        const tex = textureLoader.load(basePath + data.mapKd);
+        tex.flipY = false;
+        mat = new THREE.MeshPhongMaterial({ map: tex });
+      } else {
+        mat = new THREE.MeshPhongMaterial({
+          color: new THREE.Color(...data.Kd)
+        });
+      }
+      out[name] = mat;
+    }
+    return out;
+  }
+}
+
+// ─── INLINE OBJ LOADER ────────────────────────────────────────────────────
+async function loadOBJ(url, materials) {
+  const resp = await fetch(url);
+  const text = await resp.text();
+
+  const positions = [];
+  const normals   = [];
+  const uvs       = [];
+  const groups    = [];
+  let curMat      = null;
+  let curVerts    = [];
+
+  function flushGroup() {
+    if (curVerts.length) {
+      groups.push({ material: curMat, verts: curVerts });
+      curVerts = [];
+    }
+  }
+
+  for (const rawLine of text.split('\n')) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith('#')) continue;
+    const parts = line.split(/\s+/);
+    const key   = parts[0];
+
+    if (key === 'v') {
+      positions.push(parts.slice(1).map(Number));
+    } else if (key === 'vn') {
+      normals.push(parts.slice(1).map(Number));
+    } else if (key === 'vt') {
+      uvs.push(parts.slice(1,3).map(Number));
+    } else if (key === 'usemtl') {
+      flushGroup();
+      curMat = parts[1];
+    } else if (key === 'f') {
+      const faceVerts = parts.slice(1).map(token => {
+        const [vi, vti, vni] = token.split('/').map(x => x ? parseInt(x) - 1 : -1);
+        return { vi, vti, vni };
+      });
+      // triangulate (fan)
+      for (let i = 1; i < faceVerts.length - 1; i++) {
+        curVerts.push(faceVerts[0], faceVerts[i], faceVerts[i+1]);
+      }
+    }
+  }
+  flushGroup();
+
+  const root = new THREE.Group();
+
+  for (const group of groups) {
+    const posArr = []; const normArr = [];
+
+    for (const { vi, vti, vni } of group.verts) {
+      const p = positions[vi] || [0,0,0];
+      posArr.push(...p);
+      if (vni >= 0 && normals[vni]) {
+        normArr.push(...normals[vni]);
+      } else {
+        normArr.push(0,1,0);
+      }
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(posArr, 3));
+    geo.setAttribute('normal',   new THREE.Float32BufferAttribute(normArr, 3));
+
+    // Generate spherical UVs from normals (since OBJ has no vt coords)
+    geo.computeVertexNormals();
+    const norms = geo.attributes.normal.array;
+    const sphereUVs = [];
+    for (let i = 0; i < norms.length; i += 3) {
+      const nx = norms[i], ny = norms[i+1], nz = norms[i+2];
+      const u = 0.5 + Math.atan2(nz, nx) / (2 * Math.PI);
+      const v = 0.5 - Math.asin(Math.max(-1, Math.min(1, ny))) / Math.PI;
+      sphereUVs.push(u, v);
+    }
+    geo.setAttribute('uv', new THREE.Float32BufferAttribute(sphereUVs, 2));
+
+    const mat = (materials && materials[group.material])
+      || new THREE.MeshPhongMaterial({ color: 0xc8a070 });
+
+    root.add(new THREE.Mesh(geo, mat));
+  }
+
+  return root;
+}
+
+// ─── THREE SCENE ──────────────────────────────────────────────────────────
+const wrapper  = document.getElementById('canvas-wrapper');
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.shadowMap.enabled = true;
+wrapper.appendChild(renderer.domElement);
+
+const scene  = new THREE.Scene();
+scene.background = new THREE.Color(0x100d07);
+scene.fog = new THREE.FogExp2(0x100d07, 0.18);
+
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 100);
+camera.position.set(0, 0, 4);
+
+// Lights — warm golden NO-DO spotlight feel
+const ambient = new THREE.AmbientLight(0xd4a45a, 0.4);
+scene.add(ambient);
+
+const keyLight = new THREE.DirectionalLight(0xffe0a0, 1.4);
+keyLight.position.set(2, 3, 2);
+keyLight.castShadow = true;
+scene.add(keyLight);
+
+const fillLight = new THREE.DirectionalLight(0x8060a0, 0.3);
+fillLight.position.set(-3, 0, -2);
+scene.add(fillLight);
+
+const rimLight = new THREE.DirectionalLight(0xffd080, 0.6);
+rimLight.position.set(0, -2, -3);
+scene.add(rimLight);
+
+// ─── ORBIT CONTROLS (inline) ──────────────────────────────────────────────
+const controls = (() => {
+  let isDragging = false;
+  let lastX = 0, lastY = 0;
+  let rotX = 0, rotY = 0;
+  let targetRotX = 0, targetRotY = 0;
+  let zoom = 4, targetZoom = 4;
+  const el = renderer.domElement;
+
+  el.addEventListener('mousedown', e => {
+    isDragging = true;
+    lastX = e.clientX; lastY = e.clientY;
+  });
+  window.addEventListener('mouseup', () => isDragging = false);
+  window.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    targetRotY += (e.clientX - lastX) * 0.008;
+    targetRotX += (e.clientY - lastY) * 0.008;
+    targetRotX = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, targetRotX));
+    lastX = e.clientX; lastY = e.clientY;
+  });
+
+  el.addEventListener('wheel', e => {
+    targetZoom += e.deltaY * 0.005;
+    targetZoom = Math.max(1.2, Math.min(10, targetZoom));
+  }, { passive: true });
+
+  // Touch
+  let lastTouchX = 0, lastTouchY = 0;
+  let lastPinchDist = null;
+  el.addEventListener('touchstart', e => {
+    if (e.touches.length === 1) {
+      lastTouchX = e.touches[0].clientX;
+      lastTouchY = e.touches[0].clientY;
+    } else if (e.touches.length === 2) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      lastPinchDist = Math.sqrt(dx*dx + dy*dy);
+    }
+  });
+  el.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (e.touches.length === 1) {
+      targetRotY += (e.touches[0].clientX - lastTouchX) * 0.01;
+      targetRotX += (e.touches[0].clientY - lastTouchY) * 0.01;
+      targetRotX = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, targetRotX));
+      lastTouchX = e.touches[0].clientX;
+      lastTouchY = e.touches[0].clientY;
+    } else if (e.touches.length === 2) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (lastPinchDist) targetZoom -= (dist - lastPinchDist) * 0.03;
+      targetZoom = Math.max(1.2, Math.min(10, targetZoom));
+      lastPinchDist = dist;
+    }
+  }, { passive: false });
+  el.addEventListener('touchend', () => { lastPinchDist = null; });
+
+  let autoRot = 0;
+  return {
+    update(obj) {
+      if (!isDragging) autoRot += 0.003;
+      rotX += (targetRotX - rotX) * 0.08;
+      rotY += (targetRotY - rotY) * 0.08;
+      zoom += (targetZoom - zoom) * 0.08;
+      if (obj) {
+        obj.rotation.x = rotX;
+        obj.rotation.y = rotY + autoRot;
+      }
+      camera.position.z = zoom;
+    }
+  };
+})();
+
+// ─── LOAD ASSETS & START ──────────────────────────────────────────────────
+const basePath = './';
+const texLoader = new THREE.TextureLoader();
+let eggMesh = null;
+
+(async () => {
+  try {
+    setProgress(10, 'Carregant materials...');
+    const mtlLoader = new SimpleMTLLoader(basePath);
+    const parsedMtl = await mtlLoader.load('egg.mtl');
+    setProgress(35, 'Carregant textura...');
+    const threeMats = mtlLoader.buildThreeMaterials(parsedMtl, texLoader, basePath);
+    setProgress(55, 'Reconstruint la peça...');
+    const obj = await loadOBJ(basePath + 'egg.obj', threeMats);
+    setProgress(85, 'Posicionant relíquia...');
+
+    // Center + scale
+    const box = new THREE.Box3().setFromObject(obj);
+    const center = new THREE.Vector3();
+    box.getCenter(center);
+    obj.position.sub(center);
+    const size = new THREE.Vector3();
+    box.getSize(size);
+    const maxDim = Math.max(size.x, size.y, size.z);
+    obj.scale.setScalar(2.0 / maxDim);
+
+    // Cast/receive shadow
+    obj.traverse(c => { if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; }});
+
+    scene.add(obj);
+    eggMesh = obj;
+
+    setProgress(100, 'Arxiu desclassificat.');
+    setTimeout(() => loadScreen.classList.add('hidden'), 600);
+  } catch (err) {
+    console.error('Error carregant model:', err);
+    loadStatus.textContent = 'Error en la desclassificació. Actualitza la pàgina.';
+  }
+})();
+
+// ─── RESIZE ───────────────────────────────────────────────────────────────
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ─── RENDER LOOP ──────────────────────────────────────────────────────────
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update(eggMesh);
+  drawScratches();
+  updateTimecode();
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>

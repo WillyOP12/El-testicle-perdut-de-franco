@@ -1,0 +1,9 @@
+# MTL — El Testicle Perdut de Franco
+newmtl EggMat
+Ka 0.8 0.7 0.5
+Kd 0.9 0.8 0.6
+Ks 0.15 0.15 0.1
+Ns 20
+d 1
+illum 2
+map_Kd egg.jpg
